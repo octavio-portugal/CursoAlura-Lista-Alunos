@@ -1,47 +1,79 @@
 package com.dio.agendaalura.ui.activitys;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.dio.agendaalura.R;
+import com.dio.agendaalura.dao.AlunosDAO;
 import com.dio.agendaalura.model.Aluno;
+
+import java.io.Serializable;
 
 public class FormularioAlunosActivity extends AppCompatActivity {
 
+    public static final String TITULO_APPBAR = "Novo aluno";
+    private EditText campoNome;
+    private EditText campoTelefone;
+    private EditText campoEmail;
+    private final AlunosDAO dao = new AlunosDAO();
+    private Aluno alunoClicado;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_formulario_alunos);
-        setTitle("Formulario Adição de Alunos");
+        setTitle(TITULO_APPBAR);
+        inicializacaoDosCampos();
+        configuraBotaoSalvar();
 
-        final EditText campoNome = findViewById(R.id.acitivity_fomulario_nome);
-        final EditText campoTelefone = findViewById(R.id.acitivity_fomulario_telefone);
-        final EditText campoEmail = findViewById(R.id.acitivity_fomulario_email);
+        Intent dados = getIntent();
+        alunoClicado = (Aluno) dados.getSerializableExtra("aluno");
+        campoNome.setText(alunoClicado.getNome());
+        campoTelefone.setText(alunoClicado.getTelefone());
+        campoEmail.setText(alunoClicado.getEmail());
 
+
+    }
+
+    private void configuraBotaoSalvar() {
         Button botaoSalvar = findViewById(R.id.acitivity_fomulario_salvar);
-        botaoSalvar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String nome = campoNome.getText().toString();
-                String telefone = campoTelefone.getText().toString();
-                String email = campoEmail.getText().toString();
+        botaoSalvar.setOnClickListener((view) -> {
+        preencheAluno();
+        dao.edita(alunoClicado);
+        finish();
 
-                Aluno alunoCriado = new Aluno(nome, telefone, email);
-                Toast.makeText(FormularioAlunosActivity.this,
-                        alunoCriado.getNome() + "-" +
-                                alunoCriado.getTelefone() +
-                                "-" + alunoCriado.getEmail(),
-                        Toast.LENGTH_SHORT).show();
-            }
+//            Aluno alunoCriado = criaAluno();
+//            salvaAluno(alunoCriado);
+
         });
+    }
 
+    private void inicializacaoDosCampos() {
+        campoNome = findViewById(R.id.acitivity_fomulario_nome);
+        campoTelefone = findViewById(R.id.acitivity_fomulario_telefone);
+        campoEmail = findViewById(R.id.acitivity_fomulario_email);
+    }
 
+    private void salvaAluno(Aluno alunoCriado) {
+        dao.salva(alunoCriado);
+
+        finish();
+    }
+
+    private void preencheAluno() {
+        String nome = campoNome.getText().toString();
+        String telefone = campoTelefone.getText().toString();
+        String email = campoEmail.getText().toString();
+
+        alunoClicado.setNome(nome);
+        alunoClicado.setTelefone(telefone);
+        alunoClicado.setEmail(email);
     }
 
 }
