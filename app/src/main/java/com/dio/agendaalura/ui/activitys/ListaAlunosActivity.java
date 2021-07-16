@@ -18,10 +18,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
+import static com.dio.agendaalura.ui.activitys.ConstantesAcitivities.CHAVE_ALUNO;
+
 public class ListaAlunosActivity extends AppCompatActivity{
 
     public static final String TITULO_APPBAR = "Lista de alunos";
     private final AlunosDAO dao = new AlunosDAO();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,26 +71,34 @@ public class ListaAlunosActivity extends AppCompatActivity{
     protected void onResume() {
         super.onResume();
 
-        configuraAdapterListView();
+        configuraListView();
     }
 
-    private void configuraAdapterListView() {
+    private void configuraListView() {
         ListView listaAlunos = findViewById(R.id.listview_lista_alunos);
         final List<Aluno> alunos = dao.todos();
-        listaAlunos.setAdapter(new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                alunos));
-        listaAlunos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        configuraAdapter(listaAlunos, alunos);
+        configuraListenerDeClickPorItem(listaAlunos);
+    }
+
+    private void configuraListenerDeClickPorItem(ListView listaAlunos) {
+        listaAlunos.setOnItemClickListener(new AdapterView.OnItemClickListener () {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int posicao, long id) {
-                Aluno alunoEscolhido = alunos.get(posicao);
+            public void onItemClick(AdapterView<?> adapterView, View view, int posicao, long id) {
+                Aluno alunoEscolhido = (Aluno) adapterView.getItemAtPosition(posicao);
                 Intent vaiParaEditarAluno = new Intent(ListaAlunosActivity.this, FormularioAlunosActivity.class);
-                vaiParaEditarAluno.putExtra("aluno", alunoEscolhido);
+                vaiParaEditarAluno.putExtra(CHAVE_ALUNO, alunoEscolhido);
                 startActivity(vaiParaEditarAluno);
 
                 Log.i("posição aluno:", "" + alunoEscolhido);
             }
         });
+    }
+
+    private void configuraAdapter(ListView listaAlunos, List<Aluno> alunos) {
+        listaAlunos.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                alunos));
     }
 }
